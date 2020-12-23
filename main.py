@@ -50,44 +50,47 @@ class Qobuz:
             wb = wb.create_sheet("Music")
 
         for e2, url in enumerate(urls):
-            html = self.get_content(url)
-            if not html:
-                self.message_send("[ERROR] not content")
-                raise ErrorGetContent("[ERROR] not content")
-            soup = BeautifulSoup(html, "html.parser")
+            try:
+                html = self.get_content(url)
+                if not html:
+                    self.message_send("[ERROR] not content")
+                    raise ErrorGetContent("[ERROR] not content")
+                soup = BeautifulSoup(html, "html.parser")
 
-            data = soup.select_one('script[type="application/ld+json"]').text.strip()
-            data = json.loads(data)
+                data = soup.select_one('script[type="application/ld+json"]').text.strip()
+                data = json.loads(data)
 
-            author = soup.select_one("h2").text.strip()
-            title= author + " - " + soup.h1.text
-            temp = '<img src="{}" alt="" class="fr-fic fr-dib">'
-            image = temp.format( soup.select_one('img.album-cover__image[src][alt][title]')['src'] )
+                author = soup.select_one("h2").text.strip()
+                title= author + " - " + soup.h1.text
+                temp = '<img src="{}" alt="" class="fr-fic fr-dib">'
+                image = temp.format( soup.select_one('img.album-cover__image[src][alt][title]')['src'] )
 
-            tracks = soup.select_one("#playerTracks")
-            build=[]
-            for e, track in enumerate(tracks.select(".player__item"), start=1):
-                string1 = '<tr><td style="width:11.911%;">{}</td>'.format(e)
-                string1 += '<td style="width:76.6667%;">{}</td>'.format( track.select_one("div.track__overlay")['title'].strip() )
-                string1 += '<td style="width:11.1111%;" width="25">{}</td></tr>'.format(track.select_one("span.track__item--duration").text.strip())
-                build.append(string1)
+                tracks = soup.select_one("#playerTracks")
+                build=[]
+                for e, track in enumerate(tracks.select(".player__item"), start=1):
+                    string1 = '<tr><td style="width:11.911%;">{}</td>'.format(e)
+                    string1 += '<td style="width:76.6667%;">{}</td>'.format( track.select_one("div.track__overlay")['title'].strip() )
+                    string1 += '<td style="width:11.1111%;" width="25">{}</td></tr>'.format(track.select_one("span.track__item--duration").text.strip())
+                    build.append(string1)
 
-            table = table.format( "".join(build) )
-            
-            date  = data["releaseDate"].split("-")[0]
-            y, m, d  = data["releaseDate"].split("-")
-            date_release = ".".join([ d, m, y ])
-            label = soup.select_one("a.album-meta__link").text.strip()
-            quantity_track = e
-            total_duration = soup.select_one("span.album-about__item--duration").text.strip()
-            album_name = data['name'].strip()
-            genre = [x.text for x in soup.select("li.album-about__item") if "Genre" in x.text]
-            genre = genre[0].strip().split("\n")[-1].strip()
+                table = table.format( "".join(build) )
+                
+                date  = data["releaseDate"].split("-")[0]
+                y, m, d  = data["releaseDate"].split("-")
+                date_release = ".".join([ d, m, y ])
+                label = soup.select_one("a.album-meta__link").text.strip()
+                quantity_track = e
+                total_duration = soup.select_one("span.album-about__item--duration").text.strip()
+                album_name = data['name'].strip()
+                genre = [x.text for x in soup.select("li.album-about__item") if "Genre" in x.text]
+                genre = genre[0].strip().split("\n")[-1].strip()
 
-            sheet_ranges = wb["Music"]
-            sheet_ranges.append([title, image, table, author, date, date_release,
-                                            label, quantity_track, total_duration, album_name, genre])
-            self.message_send("processing left count: {}".format(len(urls) - e2))
+                sheet_ranges = wb["Music"]
+                sheet_ranges.append([title, image, table, author, date, date_release,
+                                                label, quantity_track, total_duration, album_name, genre])
+                self.message_send("processing left count: {}".format(len(urls) - e2))
+            except:
+                self.message_send("Error {}".format( url ))
         wb.save(NAME_FILE)
         self.message_send("[Successful] saved to {}".format(NAME_FILE))
 
