@@ -37,7 +37,7 @@ class Qobuz:
             pass
 
     def main(self):
-        table = '''<table><tbody>{}</tbody></table>'''.strip()
+        _table = '''<table><tbody>{}</tbody></table>'''.strip()
         urls = self.open_urls()
         if not urls:
             self.message_send("[Error] No urls")
@@ -73,7 +73,7 @@ class Qobuz:
                     string1 += '<td style="width:11.1111%;" width="25">{}</td></tr>'.format(track.select_one("span.track__item--duration").text.strip())
                     build.append(string1)
 
-                table = table.format( "".join(build) )
+                table = _table.format( "".join(build) )
                 
                 date  = data["releaseDate"].split("-")[0]
                 y, m, d  = data["releaseDate"].split("-")
