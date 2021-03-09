@@ -19,7 +19,7 @@ class Window:
         windows = Tk()
         windows.geometry("500x250")
         windows.configure(background='#313131')
-        windows.title('spotify')
+        windows.title('qobuz')
         string_var = StringVar()
         string_var.set(self.message)
 

@@ -58,7 +58,9 @@ class Qobuz:
                 soup = BeautifulSoup(html, "html.parser")
 
                 data = soup.select_one('script[type="application/ld+json"]').text.strip()
-                data = json.loads(data)
+                tempjson = [json.loads(x.strip()) for x in data.split("\n")]
+                data = {}
+                [data.update( x ) for x in tempjson ]
 
                 author = soup.select_one("h2").text.strip()
                 title= author + " - " + soup.h1.text
@@ -96,7 +98,7 @@ class Qobuz:
 
 
 if __name__ == "__main__":
-    start = Qobuz()
+    start = Qobuz(message_send=lambda x:x)
     start.main()
 
 
